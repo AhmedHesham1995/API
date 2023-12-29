@@ -280,8 +280,8 @@ async function login(req,res){
     // // 
 
     //generate token
-    // const token=jwt.sign({id:user._id,name:user.username},process.env.SECRET)
-    const token=jwt.sign({id:user._id,name:user.username},"thisismyjwtsecret")
+    const token=jwt.sign({id:user._id,name:user.username},process.env.SECRET)
+    // const token=jwt.sign({id:user._id,name:user.username},"thisismyjwtsecret")
     res.status(200).json({token:token, id:user._id})
 }
 
@@ -306,8 +306,8 @@ async function loginDashboard(req,res){
         return res.status(401).json({message:"You are donot admin"})
     }
     //generate token
-    // const token=jwt.sign({id:user._id,name:user.username},process.env.SECRET)
-    const token=jwt.sign({id:user._id,name:user.username},"thisismyjwtsecret")
+    const token=jwt.sign({id:user._id,name:user.username},process.env.SECRET)
+    // const token=jwt.sign({id:user._id,name:user.username},"thisismyjwtsecret")
 
     res.status(200).json({token:token, id:user._id})
 }
