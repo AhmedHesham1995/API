@@ -20,28 +20,28 @@ const getAllUsers=async(req,res)=>{
 }
  
 
-const verifyEmail =async (req,res) =>{
-    try{
-        const user=await usersModel.findOne({_id:req.params.id}) ;
-        console.log(user) ;
-        if (!user){
-            return res.status(400).send({message :"Invalid link"})
-        }
-        const token = await Token.findOne({
-            userId : user._id,
-            token:req.params.token 
-        })
-        if (!token){
-            return res.status(400).send({message :"Invalid link"})
-        }
-        await usersModel.updateOne({ _id: user._id }, { $set: { verified: true } });
+// const verifyEmail =async (req,res) =>{
+//     try{
+//         const user=await usersModel.findOne({_id:req.params.id}) ;
+//         console.log(user) ;
+//         if (!user){
+//             return res.status(400).send({message :"Invalid link"})
+//         }
+//         const token = await Token.findOne({
+//             userId : user._id,
+//             token:req.params.token 
+//         })
+//         if (!token){
+//             return res.status(400).send({message :"Invalid link"})
+//         }
+//         await usersModel.updateOne({ _id: user._id }, { $set: { verified: true } });
 
-        // await Token.deleteOne({ _id: token._id });
-        res.status(200).json({message:"Email verified successfully"})
-    }catch(error){
-        res.status(400).json({message:error.message})
-    }
-}
+//         // await Token.deleteOne({ _id: token._id });
+//         res.status(200).json({message:"Email verified successfully"})
+//     }catch(error){
+//         res.status(400).json({message:error.message})
+//     }
+// }
 const toggleUserStatus = async (req, res) => {
     const userId = req.params.id;
     try {
@@ -56,23 +56,36 @@ const toggleUserStatus = async (req, res) => {
       res.status(500).json({ message: err.message });
     }
   };
-const addUser=async(req,res)=>{
-    var user=req.body
-    try{
-        const newuser=await usersModel.create(user)
-        const token = await new Token ({
-            userId : newuser._id,
-            token : crypto.randomBytes(32).toString('hex')
-        }).save()
-        const url =`http://localhost:5173/users/${newuser._id}/verify/${token.token}`
-        await sendMail(newuser.email , "Verify Email" , url)
-        res.json({message:"An Email Sent to your Account please verify it"})
+// const addUser=async(req,res)=>{
+//     var user=req.body
+//     try{
+//         const newuser=await usersModel.create(user)
+//         const token = await new Token ({
+//             userId : newuser._id,
+//             token : crypto.randomBytes(32).toString('hex')
+//         }).save()
+//         const url =`http://localhost:5173/users/${newuser._id}/verify/${token.token}`
+//         await sendMail(newuser.email , "Verify Email" , url)
+//         res.json({message:"An Email Sent to your Account please verify it"})
+//     }
+//     catch(err){
+//         res.status(400).json({message:err.message})
+//     }
+
+// }
+
+const addUser = async (req, res) => {
+    var user = req.body
+    try {
+        const newuser = await usersModel.create(user)
+        res.json({ message: "added successfully", data: newuser })
     }
-    catch(err){
-        res.status(400).json({message:err.message})
+    catch (err) {
+        res.status(400).json({ message: err.message })
     }
 
 }
+
 
 const getOneUser=async(req,res)=>{
     const userId=req.params.id
@@ -237,53 +250,76 @@ const getFollowState = async (req, res) => {
 
 
 //authentication
-async function login(req,res){
-    const {email,password}=req.body
-    if(!email && !password){
-        return res.status(400).json({message:"you must enter your email and password"})
-    }
-    if(!email ){
-        return res.status(400).json({message:"you must enter your email"})
-    }
-    if( !password){
-        return res.status(400).json({message:"you must enter your password"})
-    }
-    const user=await usersModel.findOne({email:email})
-    if(!user){
-        return res.status(404).json({message:"you must sign up first"})
-    }
+// async function login(req,res){
+//     const {email,password}=req.body
+//     if(!email && !password){
+//         return res.status(400).json({message:"you must enter your email and password"})
+//     }
+//     if(!email ){
+//         return res.status(400).json({message:"you must enter your email"})
+//     }
+//     if( !password){
+//         return res.status(400).json({message:"you must enter your password"})
+//     }
+//     const user=await usersModel.findOne({email:email})
+//     if(!user){
+//         return res.status(404).json({message:"you must sign up first"})
+//     }
 
 
-    const isValid=await bcrypt.compare(password,user.password);
-    if(!isValid){
-        return res.status(401).json({message:"invalid password"})
-    }
-    if (user.status == "Inactive" ) {
-            return res.status(401).json({message:"Your account is inactive. Please contact support for assistance."})
-    }
-    if (!user.verified) {
-        // let token = await Token.findOne({ userId: user._id });
-        // if (!token) {
-        //     token = await new Token({
-        //         userId: user._id,
-        //         token: crypto.randomBytes(32).toString("hex"),
-        //     }).save();
-        //     const url = `http://localhost:5173/users/${user.id}/verify/${token.token}`;
-        //     await sendMail(user.email, "Verify Email", url);
-        // }
+//     const isValid=await bcrypt.compare(password,user.password);
+//     if(!isValid){
+//         return res.status(401).json({message:"invalid password"})
+//     }
+//     if (user.status == "Inactive" ) {
+//             return res.status(401).json({message:"Your account is inactive. Please contact support for assistance."})
+//     }
+//     if (!user.verified) {
+//         // let token = await Token.findOne({ userId: user._id });
+//         // if (!token) {
+//         //     token = await new Token({
+//         //         userId: user._id,
+//         //         token: crypto.randomBytes(32).toString("hex"),
+//         //     }).save();
+//         //     const url = `http://localhost:5173/users/${user.id}/verify/${token.token}`;
+//         //     await sendMail(user.email, "Verify Email", url);
+//         // }
 
-        return res
-            .status(400)
-            .send({ message: "An Email sent to your account please verify" });
-     }
-    // // console.log(user.status);
-    // // 
+//         return res
+//             .status(400)
+//             .send({ message: "An Email sent to your account please verify" });
+//      }
+//     // // console.log(user.status);
+//     // // 
+
+//     //generate token
+//     const token=jwt.sign({id:user._id,name:user.username},process.env.SECRET)
+//     // const token=jwt.sign({id:user._id,name:user.username},"thisismyjwtsecret")
+//     res.status(200).json({token:token, id:user._id})
+// }
+
+async function login(req, res) {
+    const { email, password, role } = req.body
+    if (!email || !password) {
+        return res.status(400).json({ message: "you must provide email and password" })
+    }
+
+    const user = await usersModel.findOne({ email: email })
+    if (!user) {
+        return res.status(404).json({ message: "invalid email or password" })
+    }
+
+    const isValid = await bcrypt.compare(password, user.password)
+    if (!isValid) {
+        return res.status(401).json({ message: "invalid password" })
+    }
+
 
     //generate token
-    const token=jwt.sign({id:user._id,name:user.username},process.env.SECRET)
-    // const token=jwt.sign({id:user._id,name:user.username},"thisismyjwtsecret")
-    res.status(200).json({token:token, id:user._id})
+    const token = jwt.sign({ id: user._id, name: user.username }, process.env.SECRET)
+    res.status(200).json({ token: token, id: user._id })
 }
+
 
 
 async function loginDashboard(req,res){
@@ -312,7 +348,7 @@ async function loginDashboard(req,res){
     res.status(200).json({token:token, id:user._id})
 }
 
-module.exports={loginDashboard ,toggleUserStatus,verifyEmail,getAllUsers,addUser,getOneUser,updateUser,deleteUser,login,posts4specificUser,follow,
+module.exports={loginDashboard ,toggleUserStatus,getAllUsers,addUser,getOneUser,updateUser,deleteUser,login,posts4specificUser,follow,
     unfollow,
     getFollowers,
     getFollowing,getFollowState}
