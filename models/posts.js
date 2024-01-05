@@ -88,7 +88,7 @@ const postsSchema = mongoose.Schema({
     title: {
         type: String,
         minLength: 1,
-        maxLength: 1000,
+        maxLength: 5000,
         required: true
     },
     image: {
